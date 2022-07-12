@@ -1,0 +1,11 @@
+server:
+  port: 9007
+spring:
+  application:
+    name: bond-trade-rules-engine
+  cloud:
+    config:
+      uri: ${CONFIG_URI:http://localhost:9089}
+      username: ${spring.application.name}
+      password: ${CONFIG_PASSWORD}
+
