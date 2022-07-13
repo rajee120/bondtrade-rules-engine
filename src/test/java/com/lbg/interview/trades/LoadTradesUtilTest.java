@@ -58,7 +58,7 @@ public class LoadTradesUtilTest {
         List<BondTrade> bondTradeList = loadTradesUtil.loadTradesFromFile(
                 "./src/test/resources/trades/bond-trades-dev-error.csv");
 
-        assertEquals(4, bondTradeList.size());
+        assertEquals(3, bondTradeList.size());
     }
 
 }
