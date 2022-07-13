@@ -1,0 +1,89 @@
+BondTrade
+==========
+This class is not modelled well. This is not a full/proper representation of a Bond Trade.
+
+Missing key attributes of a Bond Trade
+Client Details: CustomerAccount, CustomerName
+Book Details: RiskBook, ClientFacingBook, B2B flag
+Trader Details: TraderId, TraderMarketId, SalesPersonId
+Side: Buy or Sell
+Time: TradeTime
+Instrument Details: Instrument Id Type (if this is a ISIN or CUSIP or Ticker etc)
+Market: MarketCode, MIC
+Currency: Trade Currency, Settlement Currency
+PriceType: Price or Yield
+TradeEconomics: QtyNominal, TotalAccruedInterest, NetSettlementAmount
+
+Present but not represented correctly
+TradeDate-Incorrect type, why LocalDateTime, should be LocalDate
+SettlementDate - Typo in the name
+Price-Best practice is to use bigdecimal for price values (albeit a bit slower)
+Size-best to refactor this to Qty, type could be primitive long.
+
+Other observations:
+
+Usage of wrapper types - use it where it is really necessary
+Object immutability - it is not immutable
+ - use a builder to construct the object
+ - Remove all setters
+ - or extract an interface and return this interface to caller
+Comments/Java Doc
+
+This is used as a key in HashMap in BondTradeRulesEngine class, so we need to implement equals/hashcode method 
+
+BondTradeRule
+==============
+remove redundant public modifier in interfaces
+add a method to return the rule name, useful for debugging purposes.
+
+BondTodayTradedRule
+=======================
+No need to initialise the variable LocalDate as this will be initialised during application start-up, so won't correctly evaluate the rule the following day (if app is left to run without a restart).
+Best practice is to directly use LocalDate.now() inside the executeRule method.
+Again if the tradeDate is refactored to LocalDate, then this can be further simplified.
+Annotate the class as @Component so Spring can wire this bean during ComponentScan
+Fix the imports
+
+BondTradeSizeTooLargeRule
+===========================
+maxAllwedTradeSize is an integer where it is compared to size from BondTrade which is a long and long value can be higher than int limit. Although this may work (implicit conversion happens), is this intended. 
+Make maxAllwedTradeSize a long, and pass in from properties file (or) select a default value
+maxAllwedTradeSize -- typo, fix the name
+Pass the constructor argument using @Value annotation
+Annotate the class as @Component so Spring can wire this bean during ComponentScan
+
+BondTradeRulesEngine
+=====================
+No need to instantiate individual BondTradeRule classes. Inject a set of BondTradeRule classes, spring will automatically inject them. 
+Benefits of this design, is we can easily add & remove rules without affecting this class. We can also run the rules in certain order, if the order in which the rules should execute is important.
+Iterate through the set and evaluate the rule from the set, if all rules pass result is true, if not result is false.
+Store the result in the map.
+Return the map.
+Add some info/debug log statements
+
+LoadTradesUtil
+================
+
+Use guava preconditions method to verify the args and to return illegal argument exception as a best practice. Used StringUtils.isEmpty() to check for file nullcheck. again a best practice.
+It uses Files.readAllLines() method which reads all lines in to memory, while this may work for smaller files this is not an efficient solution and won't work for big files.
+There are many alternatives, one option is to use Files.lines() method which returns a stream and does not load whole file in to memory and populates stream lazily as it is consumed. 
+This also gives the advantage of running stream operations on the read lines.
+Use Files.lines() inside a try-with-resources block to auto-close the stream after reading the file. Remove filePath local variable and use it inside try-with-resources block (final Path filePath = Paths.get(fileName)).
+Return an empty list instead of null when there is a IO error and file could not be read properly (Used: Guava collections newArrayList())
+createBondTradeFromCSV need not be public (it should be private)
+Create the Date/Time format as local variables to promote readability (preferably inside a static consts class)
+Add some info/debug log statements
+
+
+RulesEngineApp
+================
+BondTradeRulesEngine can simply be auto-wired and need not be instantiated. Spring will inject the instance since it already has this object in the spring context.
+Refactor the info log statement to print something more meaningful.
+Use Streams to iterate through the result and print method could be called through method reference
+Use format specifier in print statement, makes the code a bit more readable.
+System.exit(0) is redundant and can be removed.
+
+
+
+
+

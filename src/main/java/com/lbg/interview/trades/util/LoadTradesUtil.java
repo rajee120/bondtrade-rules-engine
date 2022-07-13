@@ -2,55 +2,64 @@ package com.lbg.interview.trades.util;
 
 import com.lbg.interview.trades.domain.BondTrade;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.collect.Lists.newArrayList;
 
 @Slf4j
 @Component
 public class LoadTradesUtil {
 
+    private static final String DATE_TIME_FORMAT = "dd/MM/yyyy HH:mm:ss";
+    private static final String DATE_FORMAT = "dd/MM/yyyy";
+
+    /***
+     * Reads a file passed in as argument and creates a List of BondTrade objects
+     * @param fileName - Input file name.
+     * @return List<BondTrade>
+     */
     public List<BondTrade> loadTradesFromFile(String fileName) {
 
-        if(fileName == null)
-            return null;
+        checkArgument(!StringUtils.isEmpty(fileName), "Invalid File Name");
 
-        final Path filePath = Paths.get(fileName);
+        List<BondTrade> bondTrades = newArrayList();
 
-        try {
+        try (Stream<String> lines = Files.lines(Paths.get(fileName))){
 
-            List<String> tradeList = Files.readAllLines(filePath);
+            bondTrades.addAll(lines.map(this::createBondTradeFromCSV)
+                    .collect(Collectors.toList()));
 
-            return tradeList.stream()
-                .map( tradeCsv -> createBondTradeFromCSV(tradeCsv) )
-                .collect(Collectors.toList());
-
-        } catch (Exception e) {
-            log.error("Failed to process trade file");
+        } catch (IOException e) {
+            log.error("Failed to process trade file", e);
         }
 
-        return null;
+        return bondTrades;
     }
 
-    public BondTrade createBondTradeFromCSV(String tradeCsv) {
+    private BondTrade createBondTradeFromCSV(String tradeCsv) {
 
         String[] tradeFieldValueArray = tradeCsv.split(",");
 
-        String tradeId = tradeFieldValueArray[0];
-        String instrumentId = tradeFieldValueArray[1];
-        String instrumentDesc = tradeFieldValueArray[2];
-        Long size = Long.parseLong(tradeFieldValueArray[3]);
-        double price = Double.parseDouble(tradeFieldValueArray[4]);
-        LocalDateTime tradeDate = LocalDateTime.parse(tradeFieldValueArray[5], DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"));
-        LocalDate settlemetDate = LocalDate.parse(tradeFieldValueArray[6], DateTimeFormatter.ofPattern("dd/MM/yyyy"));
-
-        return new BondTrade(tradeId, instrumentDesc, instrumentId, size, price, tradeDate, settlemetDate);
+        return new BondTrade.Builder()
+                            .withTradeId(tradeFieldValueArray[0])
+                            .withInstrumentId(tradeFieldValueArray[1])
+                            .withInstrumentDesc(tradeFieldValueArray[2])
+                            .withSize(Long.parseLong(tradeFieldValueArray[3]))
+                            .withPrice(Double.parseDouble(tradeFieldValueArray[4]))
+                            .withTradeDate(LocalDateTime.parse(tradeFieldValueArray[5], DateTimeFormatter.ofPattern(DATE_TIME_FORMAT)))
+                            .withSettlementDate(LocalDate.parse(tradeFieldValueArray[6], DateTimeFormatter.ofPattern(DATE_FORMAT)))
+                            .build();
     }
 }

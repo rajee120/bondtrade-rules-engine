@@ -1,83 +1,149 @@
 package com.lbg.interview.trades.domain;
 
 
-import java.time.*;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 public class BondTrade {
 
     private String tradeId;
     private String instrumentId;
     private String instrumentDesc;
-    private Long size;
+    private long size;
     private double price;
     private LocalDateTime tradeDate;
-    private LocalDate settlemetDate;
+    private LocalDate settlementDate;
 
-    public BondTrade(String tradeId, String instrumentId, String instrumentDesc, Long size, double price, LocalDateTime tradeDate, LocalDate settlemetDate) {
+    private BondTrade(Builder builder) {
 
         // Initialise bond values
-        this.tradeId = tradeId;
-        this.instrumentId = instrumentId;
-        this.instrumentDesc = instrumentDesc;
-        this.size = size;
-        this.price = price;
-        this.tradeDate = tradeDate;
-        this.settlemetDate = settlemetDate;
+        this.tradeId = builder.tradeId;
+        this.instrumentId = builder.instrumentId;
+        this.instrumentDesc = builder.instrumentDesc;
+        this.size = builder.size;
+        this.price = builder.price;
+        this.tradeDate = builder.tradeDate;
+        this.settlementDate = builder.settlementDate;
     }
 
     public String getTradeId() {
         return tradeId;
     }
 
-    public void setTradeId(String tradeId) {
-        this.tradeId = tradeId;
-    }
-
     public String getInstrumentId() {
         return instrumentId;
-    }
-
-    public void setInstrumentId(String instrumentId) {
-        this.instrumentId = instrumentId;
     }
 
     public String getInstrumentDesc() {
         return instrumentDesc;
     }
 
-    public void setInstrumentDesc(String instrumentDesc) {
-        this.instrumentDesc = instrumentDesc;
-    }
-
-    public Long getSize() {
+    public long getSize() {
         return size;
-    }
-
-    public void setSize(Long size) {
-        this.size = size;
     }
 
     public double getPrice() {
         return price;
     }
 
-    public void setPrice(double price) {
-        this.price = price;
-    }
-
     public LocalDateTime getTradeDate() {
         return tradeDate;
     }
 
-    public void setTradeDate(LocalDateTime tradeDate) {
-        this.tradeDate = tradeDate;
+    public LocalDate getSettlementDate() {
+        return settlementDate;
     }
 
-    public LocalDate getSettlemetDate() {
-        return settlemetDate;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        BondTrade trade = (BondTrade) o;
+
+        if (size != trade.size) return false;
+        if (Double.compare(trade.price, price) != 0) return false;
+        if (!tradeId.equals(trade.tradeId)) return false;
+        if (!instrumentId.equals(trade.instrumentId)) return false;
+        if (!instrumentDesc.equals(trade.instrumentDesc)) return false;
+        if (!tradeDate.equals(trade.tradeDate)) return false;
+        return settlementDate.equals(trade.settlementDate);
     }
 
-    public void setSettlemetDate(LocalDate settlemetDate) {
-        this.settlemetDate = settlemetDate;
+    @Override
+    public int hashCode() {
+        int result = tradeId.hashCode();
+        long temp;
+        result = 31 * result + instrumentId.hashCode();
+        result = 31 * result + instrumentDesc.hashCode();
+        result = 31 * result + (int) (size ^ (size >>> 32));
+        temp = Double.doubleToLongBits(price);
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        result = 31 * result + tradeDate.hashCode();
+        result = 31 * result + settlementDate.hashCode();
+        return result;
+    }
+
+    @Override
+    public String toString() {
+        return "BondTrade{" +
+                "tradeId='" + tradeId + '\'' +
+                ", instrumentId='" + instrumentId + '\'' +
+                ", instrumentDesc='" + instrumentDesc + '\'' +
+                ", size=" + size +
+                ", price=" + price +
+                ", tradeDate=" + tradeDate +
+                ", settlementDate=" + settlementDate +
+                '}';
+    }
+
+    public static class Builder {
+
+        private String tradeId;
+        private String instrumentId;
+        private String instrumentDesc;
+        private long size;
+        private double price;
+        private LocalDateTime tradeDate;
+        private LocalDate settlementDate;
+
+        public Builder withTradeId(String tradeId){
+            this.tradeId = tradeId;
+            return this;
+        }
+
+        public Builder withInstrumentId(String instrumentId){
+            this.instrumentId = instrumentId;
+            return this;
+        }
+
+        public Builder withInstrumentDesc(String instrumentDesc){
+            this.instrumentDesc = instrumentDesc;
+            return this;
+        }
+
+        public Builder withSize(long size){
+            this.size = size;
+            return this;
+        }
+
+        public Builder withPrice(double price){
+            this.price = price;
+            return this;
+        }
+
+        public Builder withTradeDate(LocalDateTime tradeDate){
+            this.tradeDate = tradeDate;
+            return this;
+        }
+
+        public Builder withSettlementDate(LocalDate settlementDate){
+            this.settlementDate = settlementDate;
+            return this;
+        }
+
+        public BondTrade build(){
+            return new BondTrade(this);
+        }
     }
 }

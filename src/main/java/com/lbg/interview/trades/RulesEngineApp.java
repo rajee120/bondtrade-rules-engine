@@ -15,7 +15,7 @@ import java.util.Map;
 public class RulesEngineApp implements CommandLineRunner {
 
     @Autowired
-    private BondTradeRulesEngine rulesEngine= new BondTradeRulesEngine();
+    private BondTradeRulesEngine rulesEngine;
 
     public static void main(String[] args) {
 
@@ -25,22 +25,22 @@ public class RulesEngineApp implements CommandLineRunner {
     @Override
     public void run(String... args) {
 
-        log.info("Ready");
+        log.info("Starting the application ...");
 
         Map<BondTrade, Boolean> rulesEngineResults = rulesEngine.runAllTradeRules();
 
-        // Print the results
-        // Delete this ---> more efficient to use streams ???
-        for (Map.Entry<BondTrade, Boolean> resultsEntry : rulesEngineResults.entrySet()) {
+        log.info("Processed {} BondTrades, printing the results", rulesEngineResults.size());
 
-            final BondTrade bondTrade = resultsEntry.getKey();
-            final Boolean ruleResult = resultsEntry.getValue();
+        rulesEngineResults.entrySet().forEach(this::printResult);
+    }
 
-            System.out.println("tradeId = " + bondTrade.getTradeId() + " instDesc = " + bondTrade.getInstrumentDesc() +
-                " tradeDate = " + bondTrade.getTradeDate() + " tradeSize = " + bondTrade.getSize() +
-                " RuleResult = " + (ruleResult ? "PASS" : "FAIL"));
-        }
+    private void printResult(Map.Entry<BondTrade, Boolean> entry){
 
-        System.exit(0);
+        final BondTrade bondTrade = entry.getKey();
+        final Boolean ruleResult = entry.getValue();
+
+        System.out.println(String.format("tradeId = %s, instDesc = %s, tradeDate = %s, tradeSize = %d, RuleResult = %s",
+                bondTrade.getTradeId(), bondTrade.getInstrumentDesc(), bondTrade.getTradeDate().toLocalDate().toString(), bondTrade.getSize(), ruleResult ? "PASS" : "FAIL"));
+
     }
 }

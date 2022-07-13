@@ -11,5 +11,11 @@ public interface BondTradeRule {
      *
      * @return <Code>True</Code> if the rule passed, other wise false.
      */
-    public boolean executeRule(BondTrade bondTrade);
+    boolean executeRule(BondTrade bondTrade);
+
+    /***
+     * To return Rule name
+     * @return String rule name
+     */
+    String getRuleName();
 }
