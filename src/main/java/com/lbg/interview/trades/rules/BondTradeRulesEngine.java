@@ -24,7 +24,7 @@ public class BondTradeRulesEngine {
     @Autowired
     Set<BondTradeRule> bondTradeRules;
 
-    @Value("${input.file.name:./src/test/resources/trades/bond-trades-dev.csv}")
+    @Value("${input.file.name:./src/main/resources/trades/bond-trades-dev.csv}")
     String fileName;
 
     private final Map<BondTrade, Boolean> bondTradeResults = new HashMap<>();

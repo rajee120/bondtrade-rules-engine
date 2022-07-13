@@ -84,6 +84,12 @@ Use format specifier in print statement, makes the code a bit more readable.
 System.exit(0) is redundant and can be removed.
 
 
+Other best practices
+========================
+Use application properties file and configuration properties in the beans where possible.
+This will help to override them during tests.
+Configure spring profiles
+Configure logback.xml for logging
 
 
 

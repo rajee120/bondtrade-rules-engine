@@ -45,6 +45,8 @@ public class LoadTradesUtil {
             log.error("Failed to process trade file", e);
         }
 
+        log.info("Loaded {} BondTrades from file {}", bondTrades.size(), fileName);
+
         return bondTrades;
     }
 
