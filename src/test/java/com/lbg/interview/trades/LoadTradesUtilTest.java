@@ -33,14 +33,32 @@ public class LoadTradesUtilTest {
     }
 
     @Test
-    public void loadTradesFromFileWhenFileIsValid() {
+    public void loadTradesFromFileWhenFileIsInValid() {
         LoadTradesUtil loadTradesUtil = new LoadTradesUtil();
 
         try {
             List<BondTrade> bondTradeList = loadTradesUtil.loadTradesFromFile("");
         } catch (Exception e){
             assertTrue(e instanceof IllegalArgumentException);
-            assertEquals("Invalid File Name", e.getMessage());
+            assertEquals("Invalid File Name ", e.getMessage());
+        }
+
+        try {
+            List<BondTrade> bondTradeList = loadTradesUtil.loadTradesFromFile(" ");
+        } catch (Exception e){
+            assertTrue(e instanceof IllegalArgumentException);
+            assertEquals("Invalid File Name  ", e.getMessage());
         }
     }
+
+    @Test
+    public void loadTradesFromFileWhenFileIsMalformed() {
+        LoadTradesUtil loadTradesUtil = new LoadTradesUtil();
+
+        List<BondTrade> bondTradeList = loadTradesUtil.loadTradesFromFile(
+                "./src/test/resources/trades/bond-trades-dev-error.csv");
+
+        assertEquals(4, bondTradeList.size());
+    }
+
 }
